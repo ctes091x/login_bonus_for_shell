@@ -38,8 +38,13 @@ fi
 check=`grep -ci "cd $HOME/.login_bonus_for_shell" $target`
 
 if [ $check -eq 0 ]; then
-	ver=`python -V 2>&1 | cut -c 8`
-	if [ $? -eq 127 ]; then
+	if python -V >/dev/null 2>&1; then
+		ver=`python -V 2>&1 | cut -c 8`
+		python_cmd="python"
+	elif uv run python -V >/dev/null 2>&1; then
+		ver=`uv run python -V 2>&1 | cut -c 8`
+		python_cmd="uv run python"
+	else
 		echo "Python3またはPython2が必要です"
 		rm -rf $HOME/.login_bonus_for_shell
 		echo "インストールを中断しました"
@@ -50,14 +55,14 @@ if [ $check -eq 0 ]; then
 	if [ $dec -eq 1 ]; then
 		echo "Python3を確認しました"
 		echo "cd $HOME/.login_bonus_for_shell" >> $target
-		echo "python logger.py" >> $target
+		echo "$python_cmd logger.py" >> $target
 	fi
 
 	dec=`expr "$ver" = "2"`
 	if [ $dec -eq 1 ]; then
 		echo "Python2を確認しました"
 		echo "cd $HOME/.login_bonus_for_shell" >> $target
-		echo "python logger_for_python2.py" >> $target
+		echo "$python_cmd logger_for_python2.py" >> $target
 	fi
 
 	echo "cd $HOME/" >> $target
